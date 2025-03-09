@@ -27,29 +27,37 @@ struct BookFile {
 
 impl Default for BookConfig {
     fn default() -> Self {
-        Self { name: "".to_string(), url: "".to_string(), chapters: Default::default() }
+        Self {
+            name: "".to_string(),
+            url: "".to_string(),
+            chapters: Default::default(),
+            input: Default::default(),
+            output: Default::default(),
+        }
     }
 }
 
 impl BookConfig {
-    pub fn load(folder: &Path, global: &DocusConfig) -> Result<Self, DocusError> {
+    pub fn load(input: &Path, global: &DocusConfig) -> Result<Self, DocusError> {
         let mut output = Self::default();
-        let config = folder.join("book.toml");
-        let dir_name = folder.file_name().unwrap().to_str().unwrap();
+        let config = input.join("book.toml");
+        let dir_name = input.file_name().unwrap().to_str().unwrap();
         let file = toml::from_str::<BookFile>(&std::fs::read_to_string(config).unwrap())?;
         output.name = file.name.unwrap_or(dir_name.to_string());
         output.url = file.url.unwrap_or(dir_name.to_string());
+        output.input = input.to_path_buf();
+        output.output = global.output_path.join(&output.url);
         match file.chapters {
-            Some(order) => output.find_by_order(folder, &order, global),
-            None => output.find_in_dir(folder, global)?,
+            Some(order) => output.find_by_order(&order, global),
+            None => output.find_in_dir(global)?,
         }
         Ok(output)
     }
 
     /// find chapters by order
-    fn find_by_order(&mut self, folder: &Path, order: &[String], global: &DocusConfig) {
+    fn find_by_order(&mut self, order: &[String], global: &DocusConfig) {
         for chapter in order {
-            match ChapterConfig::load(&folder.join(chapter), &global.i18n) {
+            match ChapterConfig::load(&self.input.join(chapter), &self.output, &global.i18n) {
                 Ok(o) => {
                     self.chapters.insert(o.url.clone(), o);
                 }
@@ -59,15 +67,14 @@ impl BookConfig {
     }
 
     /// find chapter in dir
-    fn find_in_dir(&mut self, book: &Path, global: &DocusConfig) -> Result<(), DocusError> {
-        for file in book.read_dir()? {
+    fn find_in_dir(&mut self, global: &DocusConfig) -> Result<(), DocusError> {
+        for file in self.input.read_dir()? {
             // all sub folder in book dir are chapter
             match file {
                 Ok(o) => match o.file_type() {
                     Ok(ty) => {
                         if ty.is_dir() {
-                            let path = o.path();
-                            let mut book_cfg = ChapterConfig::load(&path, &global.i18n)?;
+                            let mut book_cfg = ChapterConfig::load(&o.path(), &self.output, &global.i18n)?;
                             self.chapters.insert(book_cfg.url.clone(), book_cfg);
                         }
                     }

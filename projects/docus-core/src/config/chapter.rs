@@ -1,15 +1,13 @@
-use crate::{config::ArticleConfig, DocusError};
+use crate::{
+    config::{ArticleConfig, InternationalizationConfig},
+    DocusError,
+};
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
-use std::{
-    collections::BTreeMap,
-    path::{Path, PathBuf},
-};
-use crate::config::InternationalizationConfig;
+use std::path::{Path, PathBuf};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ChapterConfig {
-    
     /// The title of the chapter
     pub title: String,
     /// The url of the chapter
@@ -38,63 +36,69 @@ struct ChapterFile {
 
 impl Default for ChapterConfig {
     fn default() -> Self {
-        Self { title: "".to_string(), url: "".to_string(), articles: IndexMap::default(), collapsible: false, collapsed: false }
+        Self {
+            title: "".to_string(),
+            url: "".to_string(),
+            articles: IndexMap::default(),
+            collapsible: false,
+            collapsed: false,
+            input: Default::default(),
+            output: Default::default(),
+        }
     }
 }
 
 impl ChapterConfig {
-    pub fn load(folder: &Path, i18n: &InternationalizationConfig) -> Result<Self, DocusError> {
-        let mut output = Self::default();
-        let config = folder.join("index.toml");
+    pub fn load(input: &Path, output: &Path, i18n: &InternationalizationConfig) -> Result<Self, DocusError> {
+        let mut result = Self::default();
+        let config = input.join("index.toml");
+        result.input = input.to_path_buf();
         if config.exists() {
-            let dir_name = folder.file_name().unwrap().to_str().unwrap();
+            let dir_name = input.file_name().unwrap().to_str().unwrap();
             let file = toml::from_str::<ChapterFile>(&std::fs::read_to_string(config).unwrap())?;
-            output.title = file.title.unwrap_or(dir_name.to_string());
-            output.url = file.url.unwrap_or(dir_name.to_string());
-            output.collapsible = file.collapsible.unwrap_or(false);
-            output.collapsed = file.collapsed.unwrap_or(false);
+            result.title = file.title.unwrap_or(dir_name.to_string());
+            result.url = file.url.unwrap_or(dir_name.to_string());
+            result.output = output.join(&result.url);
+            result.collapsible = file.collapsible.unwrap_or(false);
+            result.collapsed = file.collapsed.unwrap_or(false);
             match file.articles {
-                Some(order) => {
-                    for article in order {
-                        let article_path = folder.join(&article);
-                        let article_cfg = ArticleConfig::load(&article_path)?;
-                        output.articles.insert(article_cfg.url.clone(), article_cfg);
-                    }
-                }
-                None => output.find_articles(folder)?,
+                Some(order) => result.find_by_ids(&order)?,
+                None => result.find_by_dir(input)?,
             }
         }
         else {
-            output.url = folder.file_name().unwrap().to_str().unwrap().to_string();
-            output.find_articles(folder)?
+            result.url = input.file_name().unwrap().to_str().unwrap().to_string();
+            result.output = output.join(&result.url);
+            result.find_by_dir(input)?
         }
-        Ok(output)
+
+        Ok(result)
     }
-    /// Find all article in the chapter folder
-    pub fn find_articles(&mut self, folder: &Path) -> Result<(), DocusError> {
-        let chapters = find_all_articles(folder)?;
-        for (article, config) in chapters {
-            tracing::trace!("\n    Article: {}", article.display());
-            self.articles.insert(config.url.clone(), config);
+
+    fn find_by_ids(&mut self, order: &[String]) -> Result<(), DocusError> {
+        for article in order {
+            let article_path = self.input.join(article);
+            let article_cfg = ArticleConfig::load(&article_path, &self.output)?;
+            self.articles.insert(article_cfg.url.clone(), article_cfg);
         }
         Ok(())
     }
-}
 
-pub fn find_all_articles(root: &Path) -> Result<Vec<(PathBuf, ArticleConfig)>, DocusError> {
-    let mut results = vec![];
-    for file in root.read_dir()? {
-        // all markdown files are articles
-        if let Ok(file) = file {
-            let file_name = file.file_name();
-            if file_name.to_string_lossy().eq("index.md") {
-                continue;
-            }
-            if file_name.to_string_lossy().ends_with(".md") {
-                let book_cfg = ArticleConfig::load(&file.path())?;
-                results.push((file.path().to_path_buf(), book_cfg));
+    /// Find all article in the chapter folder
+    fn find_by_dir(&mut self, folder: &Path) -> Result<(), DocusError> {
+        for file in folder.read_dir()? {
+            // all markdown files are articles
+            if let Ok(file) = file {
+                let file_name = file.file_name();
+                if file_name.to_string_lossy().eq("index.md") {
+                    continue;
+                }
+                if file_name.to_string_lossy().ends_with(".md") {
+                    let book_cfg = ArticleConfig::load(&file.path(), &self.output)?;
+                    self.articles.insert(file_name.to_string_lossy().to_string(), book_cfg);
+                }
             }
         }
+        Ok(())
     }
-    Ok(results)
 }

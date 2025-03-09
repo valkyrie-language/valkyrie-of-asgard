@@ -9,7 +9,7 @@ pub struct ArticleTemplate<'a> {
 
 impl<'a> ArticleTemplate<'a> {
     pub fn render(&self, output: &Path) -> Result<(), DocusError> {
-        println!("输出4: {}", output.display());
+
         let mut options = ComrakOptions::default();
         options.extension.table = true;
         options.extension.strikethrough = true;

@@ -31,24 +31,27 @@ pub struct DocusConfig {
     /// `topbar.toml`
     pub topbar: Option<TopbarConfig>,
     /// `book.toml`
-    pub book: BTreeMap<String, BookConfig>,
+    pub books: BTreeMap<String, BookConfig>,
     /// `style.sass`
     pub style: StyleConfig,
+
+    pub i18n: InternationalizationConfig,
     /// The path to the cache directory
     pub cache_path: PathBuf,
-    pub i18n: InternationalizationConfig,
+    /// The path to the output directory
+    pub output_path: PathBuf,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 struct DocusFile {
-    output: Option<String>,
     i18n: Option<InternationalizationConfig>,
 }
 
 impl DocusConfig {
-    pub fn load(root: &Path) -> Result<Self, DocusError> {
+    pub fn load(root: &Path, output: &Path) -> Result<Self, DocusError> {
         let mut render = Self::default();
         let file = toml::from_str::<DocusFile>(&std::fs::read_to_string(root.join("docus.toml"))?)?;
+        render.output_path = output.to_path_buf();
         render.i18n = file.i18n.unwrap_or_default();
         render.style = StyleConfig::load(&root.join("style.sass"))?;
         render.find_all_books(&root)?;
@@ -62,7 +65,7 @@ impl DocusConfig {
                 match entry.path().parent() {
                     Some(dir) => {
                         let book = BookConfig::load(dir, self)?;
-                        self.book.insert(book.url.clone(), book);
+                        self.books.insert(book.url.clone(), book);
                     }
                     None => {}
                 }
