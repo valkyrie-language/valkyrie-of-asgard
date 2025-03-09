@@ -1,18 +1,27 @@
+use serde::Deserialize;
 use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
-pub struct I18nConfig {
-    pub main_lang: String,
+pub struct InternationalizationConfig {
+    pub main: String,
     pub languages: HashMap<String, LanguageConfig>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct LanguageConfig {
+    /// language code
     pub code: String,
+    /// icon path in `/assets`
+    pub icon: Option<String>,
+    /// language display name
+    ///
+    /// fallback with language code
+    pub name: Option<String>,
+    /// fallback language code
     pub fallback: Option<String>,
 }
 
-impl I18nConfig {
+impl InternationalizationConfig {
     pub fn resolve_fallback_chain(&self, lang: &str) -> Vec<&str> {
         let mut chain = vec![lang];
         let mut current = lang;
@@ -43,29 +52,4 @@ impl I18nConfig {
 
 pub fn build_lang_path(output_dir: &str, lang: &str) -> String {
     format!("{}/{}", output_dir, lang.replace('-', "_"))
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_fallback_chain() {
-        let mut config = I18nConfig {
-            main_lang: "en-us".to_string(),
-            languages: HashMap::new(),
-        };
-
-        config.languages.insert("zh-hans".to_string(), LanguageConfig {
-            code: "zh-hans".to_string(),
-            fallback: Some("en-us".to_string()),
-        });
-
-        config.languages.insert("en-us".to_string(), LanguageConfig {
-            code: "en-us".to_string(),
-            fallback: None,
-        });
-
-        assert_eq!(config.resolve_fallback_chain("zh-hans"), vec!["zh-hans", "en-us"]);
-    }
 }

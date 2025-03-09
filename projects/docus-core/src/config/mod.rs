@@ -1,6 +1,9 @@
+pub use crate::config::i18n::InternationalizationConfig;
 use crate::DocusError;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
+
+mod i18n;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct DocusConfig {
@@ -11,10 +14,6 @@ pub struct DocusConfig {
     pub language: Option<String>,
     pub output_dir: Option<PathBuf>,
     pub i18n: InternationalizationConfig,
-}
-#[derive(Debug, Serialize, Deserialize)]
-pub struct InternationalizationConfig {
-    
 }
 
 #[derive(Debug, Serialize, Deserialize)]
