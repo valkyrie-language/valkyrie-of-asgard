@@ -9,6 +9,7 @@ use clap::{Args, Parser, Subcommand};
 use docus_core::DocusError;
 
 mod commands;
+mod helpers;
 
 #[derive(Debug, Parser)]
 #[command(name = "docus")]

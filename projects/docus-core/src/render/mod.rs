@@ -5,18 +5,18 @@ use comrak::ComrakOptions;
 use std::path::Path;
 mod article;
 
-pub fn build_site(root: impl AsRef<Path>) -> Result<(), DocusError> {
+pub fn build_site(root: impl AsRef<Path>, cache: impl AsRef<Path>) -> Result<(), DocusError> {
     todo!()
 }
 
-pub fn build_book(root: impl AsRef<Path>, config: RenderConfig) -> Result<(), DocusError> {
+pub fn build_book(root: &Path, cache: &Path, config: RenderConfig) -> Result<(), DocusError> {
     todo!()
 }
 
-pub fn build_chapter(root: impl AsRef<Path>, config: RenderConfig) -> Result<(), DocusError> {
+pub fn build_chapter(root: &Path, cache: &Path, config: RenderConfig) -> Result<(), DocusError> {
     todo!()
 }
 
-pub fn build_article(root: impl AsRef<Path>, config: RenderConfig) -> Result<(), DocusError> {
+pub fn build_article(root: &Path, cache: &Path, config: RenderConfig) -> Result<(), DocusError> {
     todo!()
 }
