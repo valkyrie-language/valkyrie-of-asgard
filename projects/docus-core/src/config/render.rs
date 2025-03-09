@@ -1,34 +1,23 @@
-use crate::config::{article::ArticleConfig, BookConfig, ChapterConfig, InternationalizationConfig};
+use crate::{config::InternationalizationConfig, DocusError};
 use serde::{Deserialize, Serialize};
+use std::path::Path;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct DocusConfig {
-    pub output_dir: String,
-    #[serde(default)]
-    pub style: StyleConfig,
+    pub output_dir: Option<String>,
     #[serde(default)]
     pub i18n: InternationalizationConfig,
 }
 
-
-#[derive(Debug, Deserialize)]
-pub struct LanguageConfig {
-    pub code: String,
-    pub name: String,
-    #[serde(default)]
-    pub fallback: String,
-}
-
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct StyleConfig {
-    #[serde(default)]
-    pub theme: String,
-    #[serde(default)]
-    pub variables: std::collections::HashMap<String, String>,
+struct DocusFile {
+    output: Option<String>,
+    i18n: InternationalizationConfig,
 }
 
-impl Default for StyleConfig {
-    fn default() -> Self {
-        Self { theme: "light".to_string(), variables: Default::default() }
+impl DocusConfig {
+    pub fn load(path: &Path) -> Result<Self, DocusError> {
+        let config = toml::from_str::<DocusConfig>(&std::fs::read_to_string(path)?)?;
+        Ok(config)
     }
 }
