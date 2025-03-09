@@ -1,9 +1,11 @@
+mod for_toml;
+
 #[derive(Debug, Clone)]
 pub enum DocusError {
     RenderError { path: String, message: String },
     EncodeError { format: String, message: String },
     DecodeError { format: String, message: String },
-    IoError(String),
+    IoError { path: String, message: String },
     ConfigError(String),
     UnknownError(String),
 }

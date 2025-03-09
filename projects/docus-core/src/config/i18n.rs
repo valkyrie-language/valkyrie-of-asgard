@@ -8,16 +8,14 @@ use std::{
     path::{Path, PathBuf},
 };
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Clone, Debug, Serialize)]
 pub struct InternationalizationConfig {
     #[serde(rename = "main")]
     pub default_lang: String,
     pub languages: BTreeMap<String, LanguageConfig>,
 }
 
-pub struct InternationalizationVisitor {
-    pub default_lang: String,
-}
+struct InternationalizationVisitor {}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LanguageConfig {
@@ -35,13 +33,30 @@ pub struct LanguageConfig {
     pub fallback_chain: Vec<String>,
 }
 
+impl Default for InternationalizationConfig {
+    fn default() -> Self {
+        let mut result = InternationalizationConfig {
+            //
+            default_lang: "en-us".to_ascii_lowercase(),
+            languages: BTreeMap::default(),
+        };
+        result.insert(LanguageConfig {
+            code: "en-us".to_ascii_lowercase(),
+            icon: None,
+            name: Some("English".to_string()),
+            fallback: None,
+            fallback_chain: vec![],
+        });
+        result
+    }
+}
+
 impl<'de> Deserialize<'de> for InternationalizationConfig {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
     {
-        let visitor = InternationalizationVisitor { default_lang: "en-us".to_string() };
-        deserializer.deserialize_map(visitor)
+        deserializer.deserialize_map(InternationalizationVisitor {})
     }
 }
 
@@ -56,18 +71,10 @@ impl<'de> Visitor<'de> for InternationalizationVisitor {
     where
         A: MapAccess<'de>,
     {
-        let mut result =
-            InternationalizationConfig { default_lang: "en-us".to_ascii_lowercase(), languages: BTreeMap::default() };
-        result.insert(LanguageConfig {
-            code: "en-us".to_ascii_lowercase(),
-            icon: None,
-            name: Some("English".to_string()),
-            fallback: None,
-            fallback_chain: vec![],
-        });
+        let mut result = InternationalizationConfig::default();
         while let Some(key) = map.next_key::<String>()? {
             match key.as_str() {
-                "main" => self.default_lang = map.next_value()?,
+                "main" => result.default_lang = map.next_value()?,
                 "languages" => result.insert(map.next_value()?),
                 _ => {}
             }

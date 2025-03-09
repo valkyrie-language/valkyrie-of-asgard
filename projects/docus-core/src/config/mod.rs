@@ -1,11 +1,11 @@
-pub mod global;
-pub mod book;
-pub mod chapter;
+mod book;
+mod chapter;
+mod global;
+mod i18n;
 
-#[derive(Debug, thiserror::Error)]
-pub enum DocusError {
-    #[error("IO error: {message}")]
-    IoError { path: String, message: String },
-    #[error("Config error: {0}")]
-    ConfigError(String),
-}
+pub use self::{
+    book::BookConfig,
+    chapter::ChapterConfig,
+    global::GlobalConfig,
+    i18n::{InternationalizationConfig, LanguageConfig},
+};

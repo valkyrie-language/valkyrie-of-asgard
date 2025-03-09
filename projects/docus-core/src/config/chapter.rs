@@ -1,3 +1,4 @@
+use crate::DocusError;
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
@@ -14,11 +15,11 @@ pub struct ChapterConfig {
 
 #[derive(Debug, Deserialize)]
 pub enum NavItem {
-    Link { 
+    Link {
         title: String,
         path: String,
         #[serde(default)]
-        external: bool 
+        external: bool,
     },
     Group {
         title: String,
@@ -26,13 +27,13 @@ pub enum NavItem {
         collapsible: bool,
         #[serde(default)]
         collapsed: bool,
-        items: Vec<NavItem>
-    }
+        items: Vec<NavItem>,
+    },
 }
 
 impl ChapterConfig {
-    pub fn load(path: &str) -> Result<Self, crate::error::DocusError> {
-        let content = std::fs::read_to_string(path)?;
-        toml::from_str(&content).map_err(|e| e.into())
+    pub fn load(path: &str) -> Result<Self, DocusError> {
+        let content = std::fs::read_to_string(path).unwrap();
+        Ok(toml::from_str(&content)?)
     }
 }

@@ -1,19 +1,13 @@
-use serde::Deserialize;
+use crate::config::InternationalizationConfig;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct GlobalConfig {
     pub output_dir: String,
     #[serde(default)]
-    pub i18n: I18nConfig,
-    #[serde(default)]
     pub style: StyleConfig,
-}
-
-#[derive(Debug, Deserialize, Default)]
-pub struct I18nConfig {
-    pub default_lang: String,
     #[serde(default)]
-    pub languages: Vec<LanguageConfig>,
+    pub i18n: InternationalizationConfig,
 }
 
 #[derive(Debug, Deserialize)]
@@ -24,10 +18,16 @@ pub struct LanguageConfig {
     pub fallback: String,
 }
 
-#[derive(Debug, Deserialize, Default)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct StyleConfig {
     #[serde(default)]
     pub theme: String,
     #[serde(default)]
     pub variables: std::collections::HashMap<String, String>,
+}
+
+impl Default for StyleConfig {
+    fn default() -> Self {
+        Self { theme: "light".to_string(), variables: Default::default() }
+    }
 }
