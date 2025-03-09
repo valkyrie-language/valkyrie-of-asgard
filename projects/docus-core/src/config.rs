@@ -1,14 +1,8 @@
+use crate::DocusError;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use thiserror::Error;
 
-#[derive(Debug, Error)]
-pub enum ConfigError {
-    #[error("IO error: {0}")]
-    Io(#[from] std::io::Error),
-    #[error("TOML parse error: {0}")]
-    Toml(#[from] toml::de::Error),
-}
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct DocusConfig {
@@ -44,28 +38,28 @@ pub struct TopbarItem {
 }
 
 impl DocusConfig {
-    pub fn load() -> Result<Self, ConfigError> {
+    pub fn load() -> Result<Self, DocusError> {
         let config_path = ".config/docus.toml";
-        let content = std::fs::read_to_string(config_path)?;
-        let config: DocusConfig = toml::from_str(&content)?;
+        let content = std::fs::read_to_string(config_path).map_err(|e| DocusError::IoError(e.to_string()))?;
+        let config: DocusConfig = toml::from_str(&content).map_err(|e| DocusError::ConfigError(e.to_string()))?;
         Ok(config)
     }
 }
 
 impl SidebarConfig {
-    pub fn load() -> Result<Self, ConfigError> {
+    pub fn load() -> Result<Self, DocusError> {
         let config_path = "docs/sidebar.toml";
-        let content = std::fs::read_to_string(config_path)?;
-        let config: SidebarConfig = toml::from_str(&content)?;
+        let content = std::fs::read_to_string(config_path).map_err(|e| DocusError::IoError(e.to_string()))?;
+        let config: SidebarConfig = toml::from_str(&content).map_err(|e| DocusError::ConfigError(e.to_string()))?;
         Ok(config)
     }
 }
 
 impl TopbarConfig {
-    pub fn load() -> Result<Self, ConfigError> {
+    pub fn load() -> Result<Self, DocusError> {
         let config_path = "docs/topbar.toml";
-        let content = std::fs::read_to_string(config_path)?;
-        let config: TopbarConfig = toml::from_str(&content)?;
+        let content = std::fs::read_to_string(config_path).map_err(|e| DocusError::IoError(e.to_string()))?;
+        let config: TopbarConfig = toml::from_str(&content).map_err(|e| DocusError::ConfigError(e.to_string()))?;
         Ok(config)
     }
 }

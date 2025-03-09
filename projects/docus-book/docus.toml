@@ -1,1 +1,15 @@
 output_dir = "dist"
+
+
+
+[i18n]
+main = "en-us"
+
+[[i18n.langs]]
+name = "english"
+code = "en-us"
+
+[[i18n.langs]]
+name = "中文"
+code = "zh-hans"
+fallback = "en-us"
