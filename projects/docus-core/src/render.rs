@@ -1,7 +1,7 @@
 use crate::errors::{DocusError, Result};
 use askama::Template;
 use comrak::{markdown_to_html, ComrakOptions};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 #[derive(Template)]
 #[template(path = "page.html")]
@@ -38,7 +38,7 @@ impl MarkdownRenderer {
         let candidates = self.generate_lang_candidates(path.as_ref(), lang)?;
         let content = candidates.iter()
             .find_map(|p| std::fs::read_to_string(p).ok())
-            .ok_or_else(|| DocusError::IoError("No valid language file found".into()))?;
+            .ok_or_else(|| DocusError::IoError { path: "No valid language file found".into() })?;
         self.render_string(&content, title, sidebar, topbar)
     }
 

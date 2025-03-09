@@ -1,8 +1,6 @@
 use crate::DocusError;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
-use thiserror::Error;
-
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct DocusConfig {
@@ -12,6 +10,11 @@ pub struct DocusConfig {
     pub theme: Option<String>,
     pub language: Option<String>,
     pub output_dir: Option<PathBuf>,
+    pub i18n: InternationalizationConfig,
+}
+#[derive(Debug, Serialize, Deserialize)]
+pub struct InternationalizationConfig {
+    
 }
 
 #[derive(Debug, Serialize, Deserialize)]
