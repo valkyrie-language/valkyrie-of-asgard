@@ -40,6 +40,7 @@ pub struct RenderConfig {
 impl RenderConfig {
     pub fn load(root: &Path) -> Result<Self, DocusError> {
         let global = DocusConfig::load(&root.join("docus.toml"))?;
+        let style = StyleConfig::load(&root.join("style.sass"))?;
         Ok(Self {
             global,
             sidebar: SidebarConfig {},
@@ -51,7 +52,7 @@ impl RenderConfig {
                 template: "".to_string(),
                 output_dir: None,
             },
-            style: StyleConfig { theme: "".to_string(), variables: Default::default() },
+            style,
             chapter: ChapterConfig { title: "".to_string(), collapsible: false, collapsed: false, items: vec![], index: None },
             article: ArticleConfig {},
         })
