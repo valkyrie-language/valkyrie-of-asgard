@@ -5,7 +5,7 @@
 #![doc(html_favicon_url = "https://raw.githubusercontent.com/oovm/shape-rs/dev/projects/images/Trapezohedron.svg")]
 
 use crate::commands::{BuildCommand, ServeCommand};
-use clap::{Args, Parser, Subcommand};
+use clap::{Parser, Subcommand};
 use docus_core::DocusError;
 
 mod commands;
