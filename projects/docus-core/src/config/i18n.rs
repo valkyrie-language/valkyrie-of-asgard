@@ -7,6 +7,7 @@ use std::{
     collections::BTreeMap,
     path::{Path, PathBuf},
 };
+use serde::de::Error;
 
 #[derive(Clone, Debug, Serialize)]
 pub struct InternationalizationConfig {
@@ -79,8 +80,10 @@ impl<'de> Visitor<'de> for InternationalizationVisitor {
                 _ => {}
             }
         }
-        result.resolve_fallback_chain();
-        Ok(result)
+        match result.resolve_fallback_chain() {
+            Ok(_) => Ok(result),
+            Err(e) => return Err(Error::custom(e)),
+        }
     }
 }
 

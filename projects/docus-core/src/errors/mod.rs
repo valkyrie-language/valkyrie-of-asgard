@@ -1,4 +1,8 @@
+use std::fmt::{Display, Formatter};
+
 mod for_toml;
+
+pub type Result<T> = std::result::Result<T, DocusError>;
 
 #[derive(Debug, Clone)]
 pub enum DocusError {
@@ -6,8 +10,31 @@ pub enum DocusError {
     EncodeError { format: String, message: String },
     DecodeError { format: String, message: String },
     IoError { path: String, message: String },
-    ConfigError(String),
-    UnknownError(String),
+    ConfigError { message: String },
+    UnknownError { message: String },
 }
 
-pub type Result<T> = std::result::Result<T, DocusError>;
+impl Display for DocusError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            DocusError::RenderError { path, message } => {
+                write!(f, "RenderError: {} {}", path, message)
+            }
+            DocusError::EncodeError { format, message } => {
+                write!(f, "EncodeError: {} {}", format, message)
+            }
+            DocusError::DecodeError { format, message } => {
+                write!(f, "DecodeError: {} {}", format, message)
+            }
+            DocusError::IoError { path, message } => {
+                write!(f, "IoError: {} {}", path, message)
+            }
+            DocusError::ConfigError { message } => {
+                write!(f, "ConfigError: {}", message)
+            }
+            DocusError::UnknownError { message } => {
+                write!(f, "UnknownError: {}", message)
+            }
+        }
+    }
+}
