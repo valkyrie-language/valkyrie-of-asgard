@@ -6,7 +6,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ChapterConfig {
     /// The title of the chapter
     pub title: String,
@@ -19,7 +19,8 @@ pub struct ChapterConfig {
     /// Whether the chapter is collapsed in default
     pub collapsed: bool,
 }
-#[derive(Clone, Debug, Default, Deserialize)]
+
+#[derive(Debug, Deserialize)]
 struct ChapterFile {
     title: Option<String>,
     url: Option<String>,
@@ -29,29 +30,39 @@ struct ChapterFile {
     collapsed: Option<bool>,
 }
 
+impl Default for ChapterConfig {
+    fn default() -> Self {
+        Self { title: "".to_string(), url: "".to_string(), articles: IndexMap::default(), collapsible: false, collapsed: false }
+    }
+}
+
 impl ChapterConfig {
     pub fn load(folder: &Path) -> Result<Self, DocusError> {
+        let mut output = Self::default();
         let config = folder.join("index.toml");
         if config.exists() {
             let dir_name = folder.file_name().unwrap().to_str().unwrap();
             let file = toml::from_str::<ChapterFile>(&std::fs::read_to_string(config).unwrap())?;
-            Ok(Self {
-                title: file.title.unwrap_or(dir_name.to_string()),
-                url: file.url.unwrap_or(dir_name.to_string()),
-                articles: IndexMap::default(),
-                collapsible: file.collapsible.unwrap_or(false),
-                collapsed: file.collapsed.unwrap_or(false),
-            })
+            output.title = file.title.unwrap_or(dir_name.to_string());
+            output.url = file.url.unwrap_or(dir_name.to_string());
+            output.collapsible = file.collapsible.unwrap_or(false);
+            output.collapsed = file.collapsed.unwrap_or(false);
+            match file.articles {
+                Some(order) => {
+                    for article in order {
+                        let article_path = folder.join(&article);
+                        let article_cfg = ArticleConfig::load(&article_path)?;
+                        output.articles.insert(article_cfg.url.clone(), article_cfg);
+                    }
+                }
+                None => output.find_articles(folder)?,
+            }
         }
         else {
-            Ok(Self {
-                title: "".to_string(),
-                url: folder.file_name().unwrap().to_str().unwrap().to_string(),
-                articles: IndexMap::default(),
-                collapsible: false,
-                collapsed: false,
-            })
+            output.url = folder.file_name().unwrap().to_str().unwrap().to_string();
+            output.find_articles(folder)?
         }
+        Ok(output)
     }
     /// Find all article in the chapter folder
     pub fn find_articles(&mut self, folder: &Path) -> Result<(), DocusError> {
