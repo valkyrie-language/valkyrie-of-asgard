@@ -3,15 +3,11 @@ use super::*;
 #[derive(Debug, Template)]
 #[template(path = "article.html")]
 pub struct ArticleTemplate<'a> {
-    pub config: &'a RenderConfig,
+    pub article: &'a ArticleConfig,
     pub content: String,
 }
 
 impl<'a> ArticleTemplate<'a> {
-    pub fn new(config: &'a RenderConfig, path: &Path) -> Result<Self, DocusError> {
-        let content = std::fs::read_to_string(path)?;
-        Ok(Self { config, content })
-    }
     pub fn render(&self, output: &Path) -> Result<(), DocusError> {
         println!("输出4: {}", output.display());
         let mut options = ComrakOptions::default();

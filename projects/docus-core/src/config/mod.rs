@@ -36,8 +36,6 @@ pub struct RenderConfig {
     pub style: StyleConfig,
     /// `chapter.toml`
     pub chapter: ChapterConfig,
-    /// `<article-name>.toml`
-    pub article: ArticleConfig,
     /// The path to the cache directory
     pub cache_path: PathBuf
 }
@@ -53,7 +51,6 @@ impl RenderConfig {
             book: BookConfig::default(),
             style,
             chapter: ChapterConfig::default(),
-            article: ArticleConfig::default(),
             cache_path: Default::default(),
         })
     }

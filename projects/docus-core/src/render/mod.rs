@@ -1,7 +1,7 @@
 pub use self::article::ArticleTemplate;
 use crate::{
-    config::RenderConfig,
-    helpers::{find_all_articles, find_all_books, find_all_chapters},
+    config::{ArticleConfig, RenderConfig},
+    helpers::{find_all_books, find_all_chapters},
     DocusError,
 };
 use askama::Template;
@@ -47,19 +47,19 @@ pub fn build_book(input: &Path, output: &Path, cache: &Path, config: RenderConfi
 pub fn build_chapter(input: &Path, output: &Path, cache: &Path, mut config: RenderConfig) -> Result<(), DocusError> {
     println!("输出2: {}", output.display());
     create_dir_all(output)?;
-    let chapters = find_all_articles(input)?;
-    for article in chapters {
-        tracing::trace!("\n    Article: {}", article.0.display());
-        let mut config = config.clone();
-        config.article = article.1;
-        build_article(&article.0, output, cache, config)?;
+    for (path, article) in config.chapter.articles.iter() {
+        let input = input.join(path);
+        let output = output.join(&config.chapter.url);
+        build_article(&input, &output, cache, &article)?
     }
     Ok(())
 }
 
-pub fn build_article(input: &Path, output: &Path, _: &Path, config: RenderConfig) -> Result<(), DocusError> {
-    let output = output.join(&config.article.url);
+pub fn build_article(input: &Path, output: &Path, _: &Path, config: &ArticleConfig) -> Result<(), DocusError> {
+    println!("输入3: {}", input.display());
     println!("输出3: {}", output.display());
-    ArticleTemplate::new(&config, input)?.render(&output.with_extension("html"))?;
+    let content = std::fs::read_to_string(input)?;
+    let article = ArticleTemplate { article: config, content };
+    article.render(&output.with_extension("html"))?;
     Ok(())
 }

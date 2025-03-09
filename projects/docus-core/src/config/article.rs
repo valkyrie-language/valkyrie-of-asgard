@@ -13,11 +13,11 @@ struct ArticleFile {
 }
 
 impl ArticleConfig {
-    pub fn load(path: &Path) -> Result<Self, DocusError> {
-        let config = path.with_extension("toml");
-        let file_name = path.file_name().unwrap().to_str().unwrap();
+    pub fn load(input: &Path) -> Result<Self, DocusError> {
+        let config = input.with_extension("toml");
+        let file_name = input.file_name().unwrap().to_str().unwrap();
         if config.exists() {
-            let file = toml::from_str::<ArticleFile>(&std::fs::read_to_string(path).unwrap())?;
+            let file = toml::from_str::<ArticleFile>(&std::fs::read_to_string(input).unwrap())?;
             Ok(Self { url: file.url.unwrap_or(file_name.to_string()) })
         }
         else {

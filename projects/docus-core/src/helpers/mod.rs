@@ -28,7 +28,8 @@ pub fn find_all_chapters(root: &Path) -> Result<Vec<(PathBuf, ChapterConfig)>, D
                 Ok(ty) => {
                     if ty.is_dir() {
                         let path = o.path();
-                        let book_cfg = ChapterConfig::load(&path)?;
+                        let mut book_cfg = ChapterConfig::load(&path)?;
+                        book_cfg.find_articles(&path)?;
                         results.push((path, book_cfg));
                     }
                 }
@@ -40,20 +41,3 @@ pub fn find_all_chapters(root: &Path) -> Result<Vec<(PathBuf, ChapterConfig)>, D
     Ok(results)
 }
 
-pub fn find_all_articles(root: &Path) -> Result<Vec<(PathBuf, ArticleConfig)>, DocusError> {
-    let mut results = vec![];
-    for file in root.read_dir()? {
-        // all markdown files are articles
-        if let Ok(file) = file {
-            let file_name = file.file_name();
-            if file_name.to_string_lossy().eq("index.md") {
-                continue;
-            }
-            if file_name.to_string_lossy().ends_with(".md") {
-                let book_cfg = ArticleConfig::load(&file.path())?;
-                results.push((file.path().to_path_buf(), book_cfg));
-            }
-        }
-    }
-    Ok(results)
-}
