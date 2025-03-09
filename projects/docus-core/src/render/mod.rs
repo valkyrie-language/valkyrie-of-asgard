@@ -40,7 +40,7 @@ pub fn build_chapter(config: &ChapterConfig, book: &BookConfig, global: &DocusCo
 
 pub fn build_article(config: &ArticleConfig, book: &BookConfig, global: &DocusConfig) -> Result<(), DocusError> {
     tracing::trace!("\n    Article: {}\n          -> {}", config.input.display(), config.output.display());
-    let content = std::fs::read_to_string(config.input.with_extension("md"))?;
+    let content = config.read_markdown(None)?;
     let article = ArticleTemplate { book, article: config, global, content };
     article.render(&config.output.with_extension("html"))?;
     Ok(())

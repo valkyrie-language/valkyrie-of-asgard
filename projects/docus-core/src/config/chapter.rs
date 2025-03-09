@@ -57,7 +57,7 @@ impl ChapterConfig {
             result.collapsible = file.collapsible.unwrap_or(false);
             result.collapsed = file.collapsed.unwrap_or(false);
             match file.articles {
-                Some(order) => result.find_by_ids(&order)?,
+                Some(order) => result.find_by_ids(order)?,
                 None => result.find_by_dir(input)?,
             }
         }
@@ -70,11 +70,19 @@ impl ChapterConfig {
         Ok(result)
     }
 
-    fn find_by_ids(&mut self, order: &[ArticleItem]) -> Result<(), DocusError> {
-        for article in order {
+    fn find_by_ids(&mut self, order: Vec<ArticleItem>) -> Result<(), DocusError> {
+        for article in order.into_iter() {
             let article_path = self.input.join(&article.path);
-            let article_cfg = ArticleConfig::load(&article_path, &self.output)?;
-            self.articles.insert(article_cfg.url.clone(), article_cfg);
+            let mut config = ArticleConfig::load(&article_path, &self.output)?;
+            match article.url {
+                Some(s) => config.url = s,
+                None => {}
+            }
+            match article.name {
+                Some(s) => config.name = s,
+                None => {}
+            }
+            self.articles.insert(config.url.clone(), config);
         }
         Ok(())
     }
