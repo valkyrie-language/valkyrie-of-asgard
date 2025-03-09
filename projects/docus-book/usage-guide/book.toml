@@ -1,1 +1,8 @@
 name = "starter"
+
+chapters = [
+    "install",
+    "continuous-integration"
+]
+
+[sidebar]

@@ -26,15 +26,12 @@ use std::{
 
 #[derive(Default, Clone, Debug)]
 pub struct DocusConfig {
-    /// `sidebar.toml`
-    pub sidebar: SidebarConfig,
     /// `topbar.toml`
-    pub topbar: Option<TopbarConfig>,
+    pub topbar: TopbarConfig,
     /// `book.toml`
     pub books: BTreeMap<String, BookConfig>,
     /// `style.sass`
     pub style: StyleConfig,
-
     pub i18n: InternationalizationConfig,
     /// The path to the cache directory
     pub cache_path: PathBuf,
@@ -44,6 +41,7 @@ pub struct DocusConfig {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 struct DocusFile {
+    topbar: Option<TopbarConfig>,
     i18n: Option<InternationalizationConfig>,
 }
 
