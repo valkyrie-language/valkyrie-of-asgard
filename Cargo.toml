@@ -6,7 +6,7 @@ default-members = [
 ]
 exclude = [
     "projects/.DS_Store",
-    "projects/docus-template"
+    "projects/docus-book"
 ]
 
 [profile.release]
