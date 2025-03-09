@@ -4,7 +4,7 @@ use comrak::ComrakOptions;
 use std::path::Path;
 
 #[derive(Template)]
-#[template(path = "page.html")]
+#[template(path = "article.html")]
 pub struct ArticleTemplate<'a> {
     pub config: &'a RenderConfig,
     pub content: String,
