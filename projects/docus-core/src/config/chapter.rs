@@ -1,4 +1,5 @@
 use crate::{config::ArticleConfig, DocusError};
+use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 use std::{
     collections::BTreeMap,
@@ -7,16 +8,23 @@ use std::{
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct ChapterConfig {
+    /// The title of the chapter
     pub title: String,
+    /// The url of the chapter
     pub url: String,
-    pub articles: BTreeMap<String, ArticleConfig>,
+    /// The article list in the chapter
+    pub articles: IndexMap<String, ArticleConfig>,
+    /// Whether the chapter is collapsible
     pub collapsible: bool,
+    /// Whether the chapter is collapsed in default
     pub collapsed: bool,
 }
 #[derive(Clone, Debug, Default, Deserialize)]
 struct ChapterFile {
     title: Option<String>,
     url: Option<String>,
+    /// The order of articles in the chapter
+    articles: Option<Vec<String>>,
     collapsible: Option<bool>,
     collapsed: Option<bool>,
 }
@@ -28,18 +36,18 @@ impl ChapterConfig {
             let dir_name = folder.file_name().unwrap().to_str().unwrap();
             let file = toml::from_str::<ChapterFile>(&std::fs::read_to_string(config).unwrap())?;
             Ok(Self {
-                title: "".to_string(),
+                title: file.title.unwrap_or(dir_name.to_string()),
                 url: file.url.unwrap_or(dir_name.to_string()),
-                articles: BTreeMap::default(),
-                collapsible: false,
-                collapsed: false,
+                articles: IndexMap::default(),
+                collapsible: file.collapsible.unwrap_or(false),
+                collapsed: file.collapsed.unwrap_or(false),
             })
         }
         else {
             Ok(Self {
                 title: "".to_string(),
                 url: folder.file_name().unwrap().to_str().unwrap().to_string(),
-                articles: BTreeMap::default(),
+                articles: IndexMap::default(),
                 collapsible: false,
                 collapsed: false,
             })
