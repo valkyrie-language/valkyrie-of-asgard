@@ -1,94 +1,50 @@
 use std::path::PathBuf;
-use std::sync::Arc;
-use axum::{
-    extract::State,
-    response::Html,
-    routing::get,
-    Router,
-};
-use notify::{RecommendedWatcher, RecursiveMode, Watcher};
-use tokio::sync::broadcast;
-use tracing::info;
+use std::fs;
 
 use crate::config::{DocusConfig, SidebarConfig, TopbarConfig};
 use crate::markdown::MarkdownRenderer;
 
-#[derive(Clone)]
-pub struct ServerState {
-    config: Arc<DocusConfig>,
-    sidebar: Arc<SidebarConfig>,
-    topbar: Arc<TopbarConfig>,
-    renderer: Arc<MarkdownRenderer>,
+pub struct StaticSiteGenerator {
+    config: DocusConfig,
+    sidebar: SidebarConfig,
+    topbar: TopbarConfig,
+    renderer: MarkdownRenderer,
 }
 
-pub struct Server {
-    state: ServerState,
-    watcher: Option<RecommendedWatcher>,
-    reload_tx: broadcast::Sender<()>,
-}
-
-impl Server {
+impl StaticSiteGenerator {
     pub fn new() -> Result<Self, Box<dyn std::error::Error>> {
         let config = DocusConfig::load()?;
         let sidebar = SidebarConfig::load()?;
         let topbar = TopbarConfig::load()?;
         let renderer = MarkdownRenderer::new();
 
-        let state = ServerState {
-            config: Arc::new(config),
-            sidebar: Arc::new(sidebar),
-            topbar: Arc::new(topbar),
-            renderer: Arc::new(renderer),
-        };
-
-        let (reload_tx, _) = broadcast::channel(100);
-
         Ok(Self {
-            state,
-            watcher: None,
-            reload_tx,
+            config,
+            sidebar,
+            topbar,
+            renderer,
         })
     }
 
-    pub async fn serve(&mut self, port: u16) -> Result<(), Box<dyn std::error::Error>> {
-        let app = Router::new()
-            .route("/", get(handle_root))
-            .route("/*path", get(handle_page))
-            .with_state(self.state.clone());
+    pub fn generate(&self, output_dir: &str) -> Result<(), Box<dyn std::error::Error>> {
+        // 创建输出目录
+        fs::create_dir_all(output_dir)?;
 
-        let addr = format!("127.0.0.1:{}", port);
-        info!("Server starting on http://{}", addr);
+        // 生成首页
+        let index_content = fs::read_to_string("docs/index.md")
+            .unwrap_or_else(|_| "# Welcome\n\nNo index page found.".to_string());
+        let index_html = self.renderer.render_string(&index_content);
+        fs::write(
+            PathBuf::from(output_dir).join("index.html"),
+            index_html
+        )?;
 
-        self.setup_watcher()?;
+        // TODO: 实现其他页面的生成
+        // 1. 遍历 docs 目录下的所有 .md 文件
+        // 2. 为每个文件生成对应的 HTML
+        // 3. 保持目录结构
+        // 4. 应用主题和模板
 
-        axum::Server::bind(&addr.parse()?)
-            .serve(app.into_make_service())
-            .await?
-;
         Ok(())
     }
-
-    fn setup_watcher(&mut self) -> Result<(), Box<dyn std::error::Error>> {
-        let reload_tx = self.reload_tx.clone();
-        let mut watcher = notify::recommended_watcher(move |res| {
-            if let Ok(_) = res {
-                let _ = reload_tx.send(());
-            }
-        })?;
-
-        watcher.watch(PathBuf::from("docs").as_path(), RecursiveMode::Recursive)?;
-        self.watcher = Some(watcher);
-        Ok(())
-    }
-}
-
-async fn handle_root(State(state): State<ServerState>) -> Html<String> {
-    let content = std::fs::read_to_string("docs/index.md").unwrap_or_else(|_| "# Welcome\n\nNo index page found.".to_string());
-    let html = state.renderer.render_string(&content);
-    Html(html)
-}
-
-async fn handle_page(State(state): State<ServerState>) -> Html<String> {
-    // TODO: Implement page handling with proper routing and template rendering
-    Html(String::from("<h1>Page</h1>"))
 }
