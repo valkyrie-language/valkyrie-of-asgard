@@ -1,3 +1,5 @@
+#![doc = include_str!("readme.md")]
+
 mod article;
 mod book;
 mod chapter;
@@ -20,6 +22,7 @@ pub use self::{
 use crate::DocusError;
 use std::path::Path;
 
+#[derive(Clone, Debug)]
 pub struct RenderConfig {
     /// `docus.toml`
     pub global: DocusConfig,

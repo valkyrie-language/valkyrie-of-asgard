@@ -1,4 +1,5 @@
 use super::*;
+use docus_core::render::build_site;
 
 #[derive(Debug, Args)]
 pub struct BuildCommand {
@@ -11,7 +12,7 @@ pub struct BuildCommand {
 
 impl BuildCommand {
     pub async fn run(&self) -> Result<(), DocusError> {
-        println!("Building from {} to {}", self.input, self.output);
-        todo!()
+        build_site(&self.input)?;
+        Ok(())
     }
 }
