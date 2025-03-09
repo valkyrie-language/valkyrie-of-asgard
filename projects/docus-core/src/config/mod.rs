@@ -9,7 +9,6 @@ mod sidebar;
 mod style;
 mod topbar;
 
-use std::collections::BTreeMap;
 pub use self::{
     article::ArticleConfig,
     book::BookConfig,
@@ -21,9 +20,12 @@ pub use self::{
     topbar::TopbarConfig,
 };
 use crate::DocusError;
-use std::path::{Path, PathBuf};
+use std::{
+    collections::BTreeMap,
+    path::{Path, PathBuf},
+};
 
-#[derive(Clone, Debug)]
+#[derive(Default, Clone, Debug)]
 pub struct RenderConfig {
     /// `docus.toml`
     pub global: DocusConfig,
@@ -41,31 +43,26 @@ pub struct RenderConfig {
 
 impl RenderConfig {
     pub fn load(root: &Path) -> Result<Self, DocusError> {
-        let global = DocusConfig::load(&root.join("docus.toml"))?;
-        let style = StyleConfig::load(&root.join("style.sass"))?;
-        Ok(Self {
-            global,
-            sidebar: SidebarConfig {},
-            topbar: None,
-            book: BookConfig::default(),
-            style,
-            cache_path: Default::default(),
-        })
+        let mut render = Self::default();
+        render.global = DocusConfig::load(&root.join("docus.toml"))?;
+        render.style = StyleConfig::load(&root.join("style.sass"))?;
+        render.find_all_books(&root, &render.global.clone())?;
+        Ok(render)
     }
-}
 
-pub fn find_all_books(root: &Path, global: &DocusConfig) -> Result<Vec<(PathBuf, BookConfig)>, DocusError> {
-    let mut results = vec![];
-    for entry in walkdir::WalkDir::new(root).into_iter().filter_map(|e| e.ok()) {
-        if entry.file_name() == "book.toml" {
-            match entry.path().parent() {
-                Some(dir) => {
-                    results.push((dir.to_path_buf(), BookConfig::load(dir, global)?));
+    fn find_all_books(&mut self, root: &Path, global: &DocusConfig) -> Result<(), DocusError> {
+        for entry in walkdir::WalkDir::new(root).into_iter().filter_map(|e| e.ok()) {
+            // All folder with `book.toml` is a book
+            if entry.file_name() == "book.toml" {
+                match entry.path().parent() {
+                    Some(dir) => {
+                        let book = BookConfig::load(dir, global)?;
+                        self.book.insert(book.url.clone(), book);
+                    }
+                    None => {}
                 }
-                None => tracing::error!("{:?}", entry.path()),
             }
         }
+        Ok(())
     }
-    Ok(results)
 }
-

@@ -2,7 +2,7 @@ use crate::{config::InternationalizationConfig, DocusError};
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Default, Clone, Debug, Serialize, Deserialize)]
 pub struct DocusConfig {
     pub output_dir: Option<String>,
     #[serde(default)]
