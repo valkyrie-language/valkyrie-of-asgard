@@ -1,4 +1,5 @@
 use super::*;
+use crate::helpers::find_or_create_cache_dir;
 use docus_core::render::build_site;
 
 #[derive(Debug, Args)]
@@ -10,15 +11,12 @@ pub struct BuildCommand {
     output: String,
 
     #[arg(long)]
-    cache_dir: String,
+    cache: Option<String>,
 }
 
 impl BuildCommand {
     pub async fn run(&self) -> Result<(), DocusError> {
-        let cache_path = std::path::Path::new(&self.cache_dir);
-        if !cache_path.exists() {
-            std::fs::create_dir_all(cache_path)?;
-        }
+        let cache_path = find_or_create_cache_dir(&self.cache)?;
         build_site(&self.input, cache_path)?;
         Ok(())
     }
