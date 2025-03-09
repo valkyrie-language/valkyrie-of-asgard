@@ -2,3 +2,8 @@
 
 {% block title %}{% endblock %}
 
+
+
+{% block content %}
+{{ self.generate_html()|safe }}
+{% endblock %}

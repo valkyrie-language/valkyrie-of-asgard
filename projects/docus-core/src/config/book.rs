@@ -1,16 +1,17 @@
 use crate::{
-    config::{ChapterConfig, DocusConfig, DocusFile, InternationalizationConfig},
+    config::{ChapterConfig, DocusConfig, DocusFile, InternationalizationConfig, SidebarConfig},
     DocusError,
 };
 use indexmap::IndexMap;
 use serde::{Deserialize, Deserializer, Serialize};
 use std::path::{Path, PathBuf};
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Default, Debug, Serialize, Deserialize)]
 pub struct BookConfig {
     pub name: String,
     pub url: String,
     pub chapters: IndexMap<String, ChapterConfig>,
+    pub sidebar: SidebarConfig,
     /// The input folder of the book
     pub input: PathBuf,
     /// The output folder of the book
@@ -23,18 +24,6 @@ struct BookFile {
     url: Option<String>,
     /// The order of chapters in the book
     chapters: Option<Vec<String>>,
-}
-
-impl Default for BookConfig {
-    fn default() -> Self {
-        Self {
-            name: "".to_string(),
-            url: "".to_string(),
-            chapters: Default::default(),
-            input: Default::default(),
-            output: Default::default(),
-        }
-    }
 }
 
 impl BookConfig {
@@ -51,6 +40,7 @@ impl BookConfig {
             Some(order) => output.find_by_order(&order, global),
             None => output.find_in_dir(global)?,
         }
+        output.sidebar = SidebarConfig::build_from_book(&output);
         Ok(output)
     }
 
