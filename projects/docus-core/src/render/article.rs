@@ -1,9 +1,12 @@
 use super::*;
+use crate::config::{SidebarConfig, TopbarConfig};
 use comrak::ExtensionOptions;
 
 #[derive(Debug, Template)]
 #[template(path = "article.html")]
 pub struct ArticleTemplate<'a> {
+    pub topbar: &'a TopbarConfig,
+    pub sidebar: &'a SidebarConfig,
     /// The article config
     pub article: &'a ArticleConfig,
     /// The raw content of the article
