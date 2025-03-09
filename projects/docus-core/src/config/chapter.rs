@@ -1,39 +1,42 @@
 use crate::DocusError;
 use serde::{Deserialize, Serialize};
+use std::path::Path;
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct ChapterConfig {
     pub title: String,
-    #[serde(default)]
+    pub url: String,
     pub collapsible: bool,
-    #[serde(default)]
     pub collapsed: bool,
-    pub items: Vec<NavItem>,
-    #[serde(default)]
-    pub index: Option<String>,
 }
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub enum NavItem {
-    Link {
-        title: String,
-        path: String,
-        #[serde(default)]
-        external: bool,
-    },
-    Group {
-        title: String,
-        #[serde(default)]
-        collapsible: bool,
-        #[serde(default)]
-        collapsed: bool,
-        items: Vec<NavItem>,
-    },
+#[derive(Clone, Debug, Default, Deserialize)]
+struct ChapterFile {
+    title: Option<String>,
+    url: Option<String>,
+    collapsible: Option<bool>,
+    collapsed: Option<bool>,
 }
 
 impl ChapterConfig {
-    pub fn load(path: &str) -> Result<Self, DocusError> {
-        let content = std::fs::read_to_string(path).unwrap();
-        Ok(toml::from_str(&content)?)
+    pub fn load(dir: &Path) -> Result<Self, DocusError> {
+        let config = dir.join("index.toml");
+        if config.exists() {
+            let dir_name = dir.file_name().unwrap().to_str().unwrap();
+            let file = toml::from_str::<ChapterFile>(&std::fs::read_to_string(config).unwrap())?;
+            Ok(Self {
+                title: "".to_string(),
+                url: file.url.unwrap_or(dir_name.to_string()),
+                collapsible: false,
+                collapsed: false,
+            })
+        }
+        else {
+            return Ok(Self {
+                title: "".to_string(),
+                url: dir.file_name().unwrap().to_str().unwrap().to_string(),
+                collapsible: false,
+                collapsed: false,
+            });
+        }
     }
 }
