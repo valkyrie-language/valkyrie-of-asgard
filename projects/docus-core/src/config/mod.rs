@@ -7,11 +7,10 @@ mod i18n;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct DocusConfig {
-    pub title: String,
+    pub title: Option<String>,
     pub description: Option<String>,
     pub base_url: Option<String>,
     pub theme: Option<String>,
-    pub language: Option<String>,
     pub output_dir: Option<PathBuf>,
     pub i18n: InternationalizationConfig,
 }
@@ -42,7 +41,8 @@ pub struct TopbarItem {
 impl DocusConfig {
     pub fn load() -> Result<Self, DocusError> {
         let config_path = ".config/docus.toml";
-        let content = std::fs::read_to_string(config_path).map_err(|e| DocusError::IoError(e.to_string()))?;
+        let content = std::fs::read_to_string(config_path)
+            .map_err(|e| DocusError::IoError { path: "".to_string(), message: e.to_string() })?;
         let config: DocusConfig = toml::from_str(&content).map_err(|e| DocusError::ConfigError(e.to_string()))?;
         Ok(config)
     }
@@ -51,7 +51,8 @@ impl DocusConfig {
 impl SidebarConfig {
     pub fn load() -> Result<Self, DocusError> {
         let config_path = "docs/sidebar.toml";
-        let content = std::fs::read_to_string(config_path).map_err(|e| DocusError::IoError(e.to_string()))?;
+        let content = std::fs::read_to_string(config_path)
+            .map_err(|e| DocusError::IoError { path: "".to_string(), message: e.to_string() })?;
         let config: SidebarConfig = toml::from_str(&content).map_err(|e| DocusError::ConfigError(e.to_string()))?;
         Ok(config)
     }
@@ -60,7 +61,8 @@ impl SidebarConfig {
 impl TopbarConfig {
     pub fn load() -> Result<Self, DocusError> {
         let config_path = "docs/topbar.toml";
-        let content = std::fs::read_to_string(config_path).map_err(|e| DocusError::IoError(e.to_string()))?;
+        let content = std::fs::read_to_string(config_path)
+            .map_err(|e| DocusError::IoError { path: "".to_string(), message: e.to_string() })?;
         let config: TopbarConfig = toml::from_str(&content).map_err(|e| DocusError::ConfigError(e.to_string()))?;
         Ok(config)
     }
