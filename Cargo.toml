@@ -3,6 +3,7 @@ resolver = "2"
 members = ["projects/*"]
 default-members = [
     "projects/docus-cli",
+    "projects/docus-core",
 ]
 exclude = [
     "projects/.DS_Store",

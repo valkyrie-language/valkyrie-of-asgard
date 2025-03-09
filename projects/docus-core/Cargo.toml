@@ -13,6 +13,7 @@ exclude = ["package.json", "tests/**"]
 [dependencies]
 toml = "0.8.20"
 askama = "0.12.1"
+notify = { version = "8.0.0", optional = true }
 serde = { version = "1.0.218", features = ["derive"] }
 walkdir = "2.5.0"
 tracing = "0.1.41"

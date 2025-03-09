@@ -4,6 +4,9 @@ mod for_grass;
 mod for_std;
 mod for_toml;
 
+#[cfg(feature = "notify")]
+mod for_notify;
+
 pub type Result<T> = std::result::Result<T, DocusError>;
 
 #[derive(Debug, Clone)]

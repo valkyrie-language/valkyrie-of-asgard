@@ -17,10 +17,12 @@ notify = "8.0.0"
 tracing = "0.1.41"
 tracing-subscriber = "0.3.19"
 axum = { version = "0.8.1", features = ["tokio"] }
+tower-http = { version = "0.6.2", features = ["full"] }
 
 [dependencies.docus-core]
 path = "../docus-core"
 version = "*"
+features = ["notify"]
 
 [dev-dependencies]
 
