@@ -2,7 +2,7 @@
 resolver = "2"
 members = ["projects/*"]
 default-members = [
-    "projects/voa-cli",
+    "projects/docus-cli",
 ]
 exclude = [
     "projects/.DS_Store",
