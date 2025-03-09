@@ -5,10 +5,11 @@ use comrak::ExtensionOptions;
 #[derive(Debug, Template)]
 #[template(path = "article.html")]
 pub struct ArticleTemplate<'a> {
-    pub topbar: &'a TopbarConfig,
-    pub sidebar: &'a SidebarConfig,
     /// The article config
     pub article: &'a ArticleConfig,
+    pub sidebar: &'a SidebarConfig,
+    /// The topbar navigation items
+    pub topbar: &'a TopbarConfig,
     /// The raw content of the article
     pub content: String,
 }

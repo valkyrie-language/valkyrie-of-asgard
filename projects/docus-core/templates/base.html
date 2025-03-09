@@ -10,12 +10,14 @@
 <div class="container">
     <nav class="sidebar">
         {% block sidebar %}
-            {% include "sidebar.html" %}
+        {% include "sidebar.html" %}
         {% endblock %}
     </nav>
     <main class="main-content">
         <header class="topbar">
-            {% block topbar %}{% endblock %}
+            {% block topbar %}
+            {% include "topbar.html" %}
+            {% endblock %}
         </header>
         <article>
             {% block content %}{% endblock %}

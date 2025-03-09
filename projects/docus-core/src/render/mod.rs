@@ -4,7 +4,7 @@ use crate::{
     DocusError,
 };
 use askama::Template;
-use comrak::ComrakOptions;
+use comrak::{ComrakOptions, ExtensionOptions};
 use std::{fs::create_dir_all, path::Path};
 
 mod article;
