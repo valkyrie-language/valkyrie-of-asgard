@@ -4,10 +4,13 @@
 #![doc(html_logo_url = "https://raw.githubusercontent.com/oovm/shape-rs/dev/projects/images/Trapezohedron.svg")]
 #![doc(html_favicon_url = "https://raw.githubusercontent.com/oovm/shape-rs/dev/projects/images/Trapezohedron.svg")]
 
-use clap::{Parser, Subcommand};
+use crate::commands::{BuildCommand, ServeCommand};
+use clap::{Args, Parser, Subcommand};
 use docus_core::DocusError;
 
-#[derive(Parser)]
+mod commands;
+
+#[derive(Debug, Parser)]
 #[command(name = "docus")]
 #[command(author, version, about, long_about = None)]
 pub struct DocusCLI {
@@ -21,41 +24,19 @@ pub struct DocusCLI {
     log_level: String,
 }
 
-#[derive(Subcommand)]
+#[derive(Debug, Subcommand)]
 pub enum Commands {
     /// 构建静态站点
-    Build {
-        #[arg(short, long, default_value = "./docs")]
-        input: String,
-
-        #[arg(short, long, default_value = "./dist")]
-        output: String,
-    },
-
+    Build(BuildCommand),
     /// 启动开发服务器
-    Serve {
-        #[arg(short, long, default_value = "127.0.0.1")]
-        host: String,
-
-        #[arg(short, long, default_value_t = 3000)]
-        port: u16,
-
-        #[arg(long, default_value = "./docs")]
-        watch: String,
-    },
+    Serve(ServeCommand),
 }
 
 impl DocusCLI {
     pub async fn run(&self) -> Result<(), DocusError> {
         match &self.command {
-            Commands::Build { input, output } => {
-                println!("Building from {} to {}", input, output);
-                // 调用构建逻辑
-            }
-            Commands::Serve { host, port, watch } => {
-                println!("Serving on {}:{}, watching {}", host, port, watch);
-                // 调用服务启动逻辑
-            }
+            Commands::Build(cmd) => cmd.run().await,
+            Commands::Serve(cmd) => cmd.run().await,
         }
     }
 }
