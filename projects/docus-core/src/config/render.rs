@@ -1,14 +1,15 @@
-use crate::config::InternationalizationConfig;
+use crate::config::{article::ArticleConfig, BookConfig, ChapterConfig, InternationalizationConfig};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct GlobalConfig {
+pub struct DocusConfig {
     pub output_dir: String,
     #[serde(default)]
     pub style: StyleConfig,
     #[serde(default)]
     pub i18n: InternationalizationConfig,
 }
+
 
 #[derive(Debug, Deserialize)]
 pub struct LanguageConfig {

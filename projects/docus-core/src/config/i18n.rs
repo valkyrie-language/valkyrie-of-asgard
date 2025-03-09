@@ -1,22 +1,24 @@
 use crate::DocusError;
 use serde::{
-    de::{MapAccess, Visitor}, Deserialize, Deserializer,
+    de::{Error, MapAccess, Visitor}, Deserialize, Deserializer,
     Serialize,
 };
 use std::{
     collections::BTreeMap,
     path::{Path, PathBuf},
 };
-use serde::de::Error;
 
 #[derive(Clone, Debug, Serialize)]
 pub struct InternationalizationConfig {
-    #[serde(rename = "main")]
     pub default_lang: String,
     pub languages: BTreeMap<String, LanguageConfig>,
 }
 
-struct InternationalizationVisitor {}
+#[derive(Clone, Debug, Serialize, Deserialize)]
+struct InternationalizationFile {
+    pub main: String,
+    pub languages: Vec<LanguageConfig>,
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LanguageConfig {
@@ -57,32 +59,14 @@ impl<'de> Deserialize<'de> for InternationalizationConfig {
     where
         D: Deserializer<'de>,
     {
-        deserializer.deserialize_map(InternationalizationVisitor {})
-    }
-}
-
-impl<'de> Visitor<'de> for InternationalizationVisitor {
-    type Value = InternationalizationConfig;
-
-    fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
-        formatter.write_str("a map")
-    }
-
-    fn visit_map<A>(mut self, mut map: A) -> Result<Self::Value, A::Error>
-    where
-        A: MapAccess<'de>,
-    {
+        let file = InternationalizationFile::deserialize(deserializer)?;
         let mut result = InternationalizationConfig::default();
-        while let Some(key) = map.next_key::<String>()? {
-            match key.as_str() {
-                "main" => result.default_lang = map.next_value()?,
-                "languages" => result.insert(map.next_value()?),
-                _ => {}
-            }
+        for language in file.languages.into_iter() {
+            result.insert(language);
         }
         match result.resolve_fallback_chain() {
             Ok(_) => Ok(result),
-            Err(e) => return Err(Error::custom(e)),
+            Err(e) => Err(Error::custom(e)),
         }
     }
 }
