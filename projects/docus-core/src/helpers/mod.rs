@@ -1,5 +1,5 @@
 use crate::{
-    config::{ArticleConfig, BookConfig, ChapterConfig},
+    config::{ArticleConfig, BookConfig, ChapterConfig, RenderConfig},
     DocusError,
 };
 use std::path::{Path, PathBuf};
@@ -19,7 +19,7 @@ pub fn find_all_books(root: &Path) -> Result<Vec<(PathBuf, BookConfig)>, DocusEr
     Ok(results)
 }
 
-pub fn find_all_chapters(root: &Path) -> Result<Vec<(PathBuf, ChapterConfig)>, DocusError> {
+pub fn find_all_chapters(root: &Path, config: &RenderConfig) -> Result<Vec<(PathBuf, ChapterConfig)>, DocusError> {
     let mut results = vec![];
     for file in root.read_dir()? {
         // all `index.toml` are chapters
@@ -28,7 +28,7 @@ pub fn find_all_chapters(root: &Path) -> Result<Vec<(PathBuf, ChapterConfig)>, D
                 Ok(ty) => {
                     if ty.is_dir() {
                         let path = o.path();
-                        let mut book_cfg = ChapterConfig::load(&path)?;
+                        let mut book_cfg = ChapterConfig::load(&path, &config.global.i18n)?;
                         book_cfg.find_articles(&path)?;
                         results.push((path, book_cfg));
                     }
@@ -40,4 +40,3 @@ pub fn find_all_chapters(root: &Path) -> Result<Vec<(PathBuf, ChapterConfig)>, D
     }
     Ok(results)
 }
-

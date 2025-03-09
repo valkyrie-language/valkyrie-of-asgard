@@ -33,7 +33,7 @@ pub fn build_site(input: &Path, output: &Path, cache: &Path) -> Result<(), Docus
 
 pub fn build_book(input: &Path, output: &Path, cache: &Path, config: RenderConfig) -> Result<(), DocusError> {
     println!("输出1: {}", output.display());
-    let chapters = find_all_chapters(input)?;
+    let chapters = find_all_chapters(input, &config)?;
     for chapter in chapters {
         tracing::trace!("\n    Chapter: {}", chapter.0.display());
         let mut config = config.clone();

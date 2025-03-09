@@ -5,6 +5,7 @@ use std::{
     collections::BTreeMap,
     path::{Path, PathBuf},
 };
+use crate::config::InternationalizationConfig;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ChapterConfig {
@@ -37,7 +38,7 @@ impl Default for ChapterConfig {
 }
 
 impl ChapterConfig {
-    pub fn load(folder: &Path) -> Result<Self, DocusError> {
+    pub fn load(folder: &Path, i18n: &InternationalizationConfig) -> Result<Self, DocusError> {
         let mut output = Self::default();
         let config = folder.join("index.toml");
         if config.exists() {
