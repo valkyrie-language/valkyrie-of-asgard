@@ -5,10 +5,7 @@ use tracing::level_filters::LevelFilter;
 
 #[tokio::main]
 async fn main() -> Result<(), DocusError> {
-    let format = tracing_subscriber::fmt::format()
-        .with_level(false) // don't include levels in formatted output
-        .with_target(false) // don't include targets
-        .compact(); // use the `Compact` formatting style.
+    let format = tracing_subscriber::fmt::format().with_thread_ids(true).with_thread_names(true).pretty();
     // Create a `fmt` subscriber that uses our custom event format, and set it
     // as the default.
     tracing_subscriber::fmt().event_format(format).with_max_level(LevelFilter::TRACE).init();

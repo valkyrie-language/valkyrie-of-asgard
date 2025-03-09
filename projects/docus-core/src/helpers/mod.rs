@@ -8,8 +8,12 @@ pub fn find_all_books(root: &Path) -> Result<Vec<(PathBuf, BookConfig)>, DocusEr
     let mut results = vec![];
     for entry in walkdir::WalkDir::new(root).into_iter().filter_map(|e| e.ok()) {
         if entry.file_name() == "book.toml" {
-            let book_cfg = BookConfig::load(&entry.path())?;
-            results.push((entry.path().parent().unwrap().to_path_buf(), book_cfg));
+            match entry.path().parent() {
+                Some(dir) => {
+                    results.push((dir.to_path_buf(), BookConfig::load(dir)?));
+                }
+                None => tracing::error!("{:?}", entry.path()),
+            }
         }
     }
     Ok(results)
@@ -37,7 +41,6 @@ pub fn find_all_chapters(root: &Path) -> Result<Vec<(PathBuf, ChapterConfig)>, D
 }
 
 pub fn find_all_articles(root: &Path) -> Result<Vec<(PathBuf, ArticleConfig)>, DocusError> {
-    println!("find article {}", root.display());
     let mut results = vec![];
     for file in root.read_dir()? {
         // all markdown files are articles

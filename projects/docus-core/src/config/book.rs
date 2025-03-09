@@ -1,6 +1,6 @@
-use std::path::Path;
 use crate::DocusError;
 use serde::{Deserialize, Deserializer, Serialize};
+use std::path::Path;
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct BookConfig {
@@ -20,8 +20,9 @@ struct BookFile {
 
 impl BookConfig {
     pub fn load(path: &Path) -> Result<Self, DocusError> {
+        let config = path.join("book.toml");
         let dir_name = path.file_name().unwrap().to_str().unwrap();
-        let file = toml::from_str::<BookFile>(&std::fs::read_to_string(path).unwrap())?;
+        let file = toml::from_str::<BookFile>(&std::fs::read_to_string(config).unwrap())?;
         Ok(Self {
             name: file.name.unwrap_or(dir_name.to_string()),
             url: file.url.unwrap_or(dir_name.to_string()),
