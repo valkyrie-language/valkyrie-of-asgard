@@ -50,16 +50,10 @@ impl RenderConfig {
             global,
             sidebar: SidebarConfig {},
             topbar: None,
-            book: BookConfig {
-                title: "".to_string(),
-                description: None,
-                chapter_order: vec![],
-                template: "".to_string(),
-                output_dir: None,
-            },
+            book: BookConfig::default(),
             style,
-            chapter: ChapterConfig { title: "".to_string(), collapsible: false, collapsed: false, items: vec![], index: None },
-            article: ArticleConfig {},
+            chapter: ChapterConfig::default(),
+            article: ArticleConfig::default(),
             cache_path: Default::default(),
         })
     }

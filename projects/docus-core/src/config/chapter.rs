@@ -1,7 +1,7 @@
 use crate::DocusError;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct ChapterConfig {
     pub title: String,
     #[serde(default)]
@@ -13,7 +13,7 @@ pub struct ChapterConfig {
     pub index: Option<String>,
 }
 
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum NavItem {
     Link {
         title: String,

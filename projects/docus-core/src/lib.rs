@@ -5,6 +5,7 @@
 #![doc(html_favicon_url = "https://raw.githubusercontent.com/oovm/shape-rs/dev/projects/images/Trapezohedron.svg")]
 
 mod errors;
+pub mod helpers;
 pub mod render;
 pub mod config;
 

@@ -25,14 +25,14 @@ impl StyleConfig {
         })
     }
 
-    pub fn generate_css(&self, path: &Path, cache: &Path) -> Result<(), DocusError> {
+    pub fn generate_css(&self, output: &Path, cache: &Path) -> Result<(), DocusError> {
         std::fs::write(cache.join("main.scss"), &self.main)?;
         std::fs::write(cache.join("variables.scss"), &self.variables)?;
         std::fs::write(cache.join("custom.scss"), &self.custom)?;
         let options = grass::Options::default();
         let css = grass::from_path(&cache.join("main.scss"), &options)?;
-        let output = path.join("index.css");
-        std::fs::write(output, css)?;
+        let file = output.join("index.css");
+        std::fs::write(file, css)?;
         Ok(())
     }
 }
