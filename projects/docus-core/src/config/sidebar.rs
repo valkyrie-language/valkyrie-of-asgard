@@ -16,7 +16,7 @@ struct SidebarFile {}
 pub struct MenuItem {
     pub title: String,
     pub url: String,
-    pub items: Vec<MenuItem>,
+    pub children: Vec<MenuItem>,
     pub collapsible: bool,
     pub collapsed: bool,
 }
@@ -48,7 +48,7 @@ impl SidebarConfig {
             items.push(MenuItem {
                 title: article.url.clone(),
                 url: format!("/{}/{}", chapter.url, article.url),
-                items: Vec::new(),
+                children: Vec::new(),
                 collapsible: false,
                 collapsed: false,
             });
@@ -57,7 +57,7 @@ impl SidebarConfig {
         MenuItem {
             title: chapter.title.clone(),
             url: format!("/{}", chapter.url),
-            items,
+            children: items,
             collapsible: chapter.collapsible,
             collapsed: chapter.collapsed,
         }
