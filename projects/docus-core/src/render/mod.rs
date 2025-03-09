@@ -10,10 +10,7 @@ use std::{fs::create_dir_all, path::Path};
 mod article;
 
 pub fn build_site(input: &Path, output: &Path, cache: &Path) -> Result<(), DocusError> {
-    tracing::debug!("\n    Input: {}", input.display());
-    tracing::debug!("\n    Output: {}", output.display());
-    tracing::debug!("\n    Cache: {}", cache.display());
-
+    tracing::debug!("\n    Input:  {}\n    Output: {}\n    Cache:  {}", input.display(), output.display(), cache.display());
     let mut config = DocusConfig::load(input, output)?;
     config.cache_path = cache.to_path_buf();
     // generate css
@@ -35,6 +32,7 @@ pub fn build_book(config: &BookConfig, topbar: &TopbarConfig) -> Result<(), Docu
 pub fn build_chapter(config: &ChapterConfig, topbar: &TopbarConfig, sidebar: &SidebarConfig) -> Result<(), DocusError> {
     tracing::trace!("\n    Chapter: {}\n          -> {}", config.input.display(), config.output.display());
     for article in config.articles.values() {
+        create_dir_all(&config.output)?;
         build_article(&article, topbar, sidebar)?
     }
     Ok(())

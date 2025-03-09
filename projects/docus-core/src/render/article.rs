@@ -17,6 +17,7 @@ pub struct ArticleTemplate<'a> {
 impl<'a> ArticleTemplate<'a> {
     /// Render the article template to the output file
     pub fn render(&self, output: &Path) -> Result<(), DocusError> {
+        tracing::trace!("\n    Write: {}", output.display());
         let mut file = std::fs::File::create(output)?;
         self.write_into(&mut file)?;
         Ok(())

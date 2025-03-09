@@ -1,15 +1,16 @@
 use super::*;
 use crate::helpers::find_or_create_cache_dir;
+use axum::{handler::HandlerWithoutStateExt, routing::get_service, Router};
 use docus_core::render::build_site;
-use std::{fs::create_dir_all, path::Path};
-use axum::{Router, routing::get_service, handler::HandlerWithoutStateExt};
-use tower_http::services::ServeDir;
-use notify::{Watcher, RecursiveMode, Event};
+use notify::{Event, RecursiveMode, Watcher};
+use std::{fs::create_dir_all, net::Ipv4Addr, path::Path};
+use std::path::PathBuf;
 use tokio::sync::mpsc;
+use tower_http::services::ServeDir;
 
 #[derive(Debug, Args)]
 pub struct ServeCommand {
-    #[arg(default_value = ".")]
+    #[arg(default_value = "docs")]
     input: String,
 
     #[arg(default_value = "dist")]
@@ -18,9 +19,6 @@ pub struct ServeCommand {
     #[arg(long)]
     cache: Option<String>,
     
-    #[arg(long, default_value = "0.0.0.0")]
-    host: String,
-
     #[arg(long, default_value_t = 6321)]
     port: u16,
 }
@@ -28,7 +26,7 @@ pub struct ServeCommand {
 impl ServeCommand {
     pub async fn run(&self) -> Result<(), DocusError> {
         let input = Path::new(&self.input);
-        let output_path = input.join(&self.output);
+        let output_path = PathBuf::from(&self.output);
         let cache_path = find_or_create_cache_dir(&self.cache)?;
 
         if !input.join("docus.toml").exists() {
@@ -56,7 +54,7 @@ impl ServeCommand {
         watcher.watch(input, RecursiveMode::Recursive)?;
 
         // Set up static file server
-        let app = Router::new().nest_service("/", get_service(ServeDir::new(&output_path)));
+        let app = Router::new().fallback_service(get_service(ServeDir::new(&output_path)));
 
         // Spawn the file watcher handler
         let output_path_clone = output_path.clone();
@@ -73,13 +71,11 @@ impl ServeCommand {
                 }
             }
         });
-        let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await?;
+        let listener = tokio::net::TcpListener::bind((Ipv4Addr::new(127, 0, 0, 1), self.port)).await?;
+        println!("Server running at http://{}", listener.local_addr().unwrap());
         // Start the server
         axum::serve(listener, app.into_make_service())
             .await
-            .map_err(|e| DocusError::IoError {
-                path: output_path.display().to_string(),
-                message: e.to_string(),
-            })
+            .map_err(|e| DocusError::IoError { path: output_path.display().to_string(), message: e.to_string() })
     }
 }
