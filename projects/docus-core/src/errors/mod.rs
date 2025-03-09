@@ -1,8 +1,8 @@
 use std::fmt::{Display, Formatter};
 
-mod for_toml;
-mod for_std;
 mod for_grass;
+mod for_std;
+mod for_toml;
 
 pub type Result<T> = std::result::Result<T, DocusError>;
 
@@ -29,7 +29,7 @@ impl Display for DocusError {
                 write!(f, "DecodeError: {} {}", format, message)
             }
             DocusError::IoError { path, message } => {
-                write!(f, "IoError: {} {}", path, message)
+                write!(f, "IoError: {} at {}", message, path)
             }
             DocusError::ConfigError { message } => {
                 write!(f, "ConfigError: {}", message)

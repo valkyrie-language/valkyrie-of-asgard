@@ -20,7 +20,7 @@ pub use self::{
     topbar::TopbarConfig,
 };
 use crate::DocusError;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 #[derive(Clone, Debug)]
 pub struct RenderConfig {
@@ -38,6 +38,8 @@ pub struct RenderConfig {
     pub chapter: ChapterConfig,
     /// `<article-name>.toml`
     pub article: ArticleConfig,
+    /// The path to the cache directory
+    pub cache_path: PathBuf
 }
 
 impl RenderConfig {
@@ -58,6 +60,7 @@ impl RenderConfig {
             style,
             chapter: ChapterConfig { title: "".to_string(), collapsible: false, collapsed: false, items: vec![], index: None },
             article: ArticleConfig {},
+            cache_path: Default::default(),
         })
     }
 }

@@ -1,7 +1,11 @@
 use crate::DocusError;
+use std::panic::Location;
 
 impl From<std::io::Error> for DocusError {
+    #[track_caller]
     fn from(err: std::io::Error) -> Self {
-        DocusError::IoError { path: "".to_string(), message: err.to_string() }
+        let location = Location::caller();
+
+        DocusError::IoError { path: location.to_string(), message: err.to_string() }
     }
 }

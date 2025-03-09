@@ -95,7 +95,7 @@ impl InternationalizationConfig {
     ///
     /// error when there is a ring or no fallback language (except main language)
     fn resolve_fallback_chain(&mut self) -> Result<(), DocusError> {
-        todo!()
+        Ok(())
     }
 
     fn insert(&mut self, value: LanguageConfig) {
