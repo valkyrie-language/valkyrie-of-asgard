@@ -1,15 +1,16 @@
 {% block sidebar %}
 <nav class="sidebar">
-    <div class="sidebar-inner">
+    <div class="sidebar__inner">
         {% for menu in sidebar.menu %}
-        <a href="{{ menu.url }}" class="sidebar-item">
+        <a href="{{ menu.url }}" class="sidebar__item {% if menu.collapsed %}sidebar__item--active{% endif %}">
             {{ menu.title }}
             {% for sub in menu.children %}
             <div class="sidebar-submenu">
-
+                {% for sub in menu.children %}
+                <a href="{{ sub.url }}" class="sidebar-submenu-item">{{ sub.title }}</a>
+                {% endfor %}
             </div>
             {% else %}
-
             {% endfor %}
         </a>
         {% endfor %}

@@ -1,6 +1,7 @@
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
 
 #[derive(Copy, Clone, Debug, Default, Serialize, Deserialize)]
 pub struct TopbarConfig {
-    enable: bool
+    #[serde(default)]
+    enable: bool,
 }

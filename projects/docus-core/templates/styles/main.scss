@@ -124,13 +124,13 @@ th {
     background-color: $background-color;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 
-    &__brand {
+    &-brand {
         font-size: 1.25rem;
         font-weight: 600;
         color: $text-color;
     }
 
-    &__nav {
+    &-nav {
         display: flex;
         margin-left: auto;
         gap: 1rem;
@@ -144,12 +144,27 @@ th {
     background-color: $background-color;
     border-right: 1px solid #eee;
 
-    &__item {
+    &-item {
         padding: 0.5rem 0;
 
         &--active {
             color: $primary-color;
             font-weight: 600;
+        }
+    }
+
+    &-submenu {
+        padding-left: 1rem;
+        display: none;
+
+        &-item {
+            padding: 0.3rem 0;
+            font-size: 0.9em;
+            color: #666;
+
+            &:hover {
+                color: $primary-color;
+            }
         }
     }
 }
