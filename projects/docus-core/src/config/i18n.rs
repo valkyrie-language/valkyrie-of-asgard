@@ -101,7 +101,36 @@ impl InternationalizationConfig {
     ///
     /// error when there is a ring or no fallback language (except main language)
     fn resolve_fallback_chain(&mut self) -> Result<(), DocusError> {
-        todo!()
+        for (lang_code, config) in &mut self.languages {
+            let mut chain = Vec::new();
+            let mut current = lang_code.clone();
+            let mut visited = std::collections::HashSet::new();
+            let language = self.languages.get(lang_code).unwrap();
+            while let Some(next) = language.fallback.as_ref() {
+                if !self.languages.contains_key(next) {
+                    return Err(DocusError::ConfigError(format!("Fallback language '{}' not found for '{}'", next, lang_code)));
+                }
+                if !visited.insert(next.clone()) {
+                    return Err(DocusError::ConfigError(format!(
+                        "Circular fallback detected in language chain for '{}'",
+                        lang_code
+                    )));
+                }
+
+                chain.push(next.clone());
+                current = next.clone();
+            }
+
+            if !chain.contains(&self.default_lang) && lang_code.eq(&self.default_lang) {
+                return Err(DocusError::ConfigError(format!(
+                    "Fallback chain for '{}' does not reach default language '{}'",
+                    lang_code, self.default_lang
+                )));
+            }
+
+            config.fallback_chain = chain;
+        }
+        Ok(())
     }
 
     fn insert(&mut self, value: LanguageConfig) {
