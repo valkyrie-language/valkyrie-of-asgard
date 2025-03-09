@@ -9,6 +9,7 @@ mod sidebar;
 mod style;
 mod topbar;
 
+use std::collections::BTreeMap;
 pub use self::{
     article::ArticleConfig,
     book::BookConfig,
@@ -31,13 +32,11 @@ pub struct RenderConfig {
     /// `topbar.toml`
     pub topbar: Option<TopbarConfig>,
     /// `book.toml`
-    pub book: BookConfig,
+    pub book: BTreeMap<String, BookConfig>,
     /// `style.sass`
     pub style: StyleConfig,
-    /// `chapter.toml`
-    pub chapter: ChapterConfig,
     /// The path to the cache directory
-    pub cache_path: PathBuf
+    pub cache_path: PathBuf,
 }
 
 impl RenderConfig {
@@ -50,8 +49,23 @@ impl RenderConfig {
             topbar: None,
             book: BookConfig::default(),
             style,
-            chapter: ChapterConfig::default(),
             cache_path: Default::default(),
         })
     }
 }
+
+pub fn find_all_books(root: &Path, global: &DocusConfig) -> Result<Vec<(PathBuf, BookConfig)>, DocusError> {
+    let mut results = vec![];
+    for entry in walkdir::WalkDir::new(root).into_iter().filter_map(|e| e.ok()) {
+        if entry.file_name() == "book.toml" {
+            match entry.path().parent() {
+                Some(dir) => {
+                    results.push((dir.to_path_buf(), BookConfig::load(dir, global)?));
+                }
+                None => tracing::error!("{:?}", entry.path()),
+            }
+        }
+    }
+    Ok(results)
+}
+

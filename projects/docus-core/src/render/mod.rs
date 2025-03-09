@@ -1,7 +1,7 @@
 pub use self::article::ArticleTemplate;
 use crate::{
     config::{ArticleConfig, RenderConfig},
-    helpers::{find_all_books, find_all_chapters},
+    helpers::find_all_books,
     DocusError,
 };
 use askama::Template;
@@ -20,7 +20,7 @@ pub fn build_site(input: &Path, output: &Path, cache: &Path) -> Result<(), Docus
     // generate css
     config.style.generate_css(output, cache)?;
     // generate books
-    let books = find_all_books(input)?;
+    let books = find_all_books(input, &config.global)?;
     for book in books {
         tracing::trace!("\n    Book: {}", book.0.display());
         let mut config = config.clone();
