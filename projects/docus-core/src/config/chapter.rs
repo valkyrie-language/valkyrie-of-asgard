@@ -9,7 +9,7 @@ use std::path::{Path, PathBuf};
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct ChapterConfig {
     /// The title of the chapter
-    pub title: String,
+    pub name: String,
     /// The url of the chapter
     pub url: String,
     /// The article list in the chapter
@@ -51,7 +51,7 @@ impl ChapterConfig {
         if config.exists() {
             let dir_name = input.file_name().unwrap().to_str().unwrap();
             let file = toml::from_str::<ChapterFile>(&std::fs::read_to_string(config).unwrap())?;
-            result.title = file.title.unwrap_or(dir_name.to_string());
+            result.name = file.title.unwrap_or(dir_name.to_string());
             result.url = file.url.unwrap_or(dir_name.to_string());
             result.output = output.join(&result.url);
             result.collapsible = file.collapsible.unwrap_or(false);

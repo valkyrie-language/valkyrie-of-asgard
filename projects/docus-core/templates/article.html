@@ -6,12 +6,12 @@
 <nav class="sidebar">
     <div class="sidebar-inner">
         {% for menu in book.sidebar.menu %}
-        <a href="{{ menu.url }}.html" class="sidebar-item {% if menu.collapsed %}sidebar-item--active{% endif %}">
-            {{ menu.title }}
+        <a href="{{ menu.url }}" class="sidebar-item {% if menu.collapsed %}sidebar-item--active{% endif %}">
+            {{ menu.name }}
             {% if !menu.children.is_empty() %}
-            <div class="sidebar-submenu">
+            <div class="sidebar-menu2">
                 {% for sub in menu.children %}
-                <a href="{{ sub.url }}.html" class="sidebar-submenu-item">{{ sub.title }}</a>
+                <a href="{{ sub.url }}.html" class="sidebar-menu2-item">{{ sub.name }}</a>
                 {% endfor %}
             </div>
             {% endif %}

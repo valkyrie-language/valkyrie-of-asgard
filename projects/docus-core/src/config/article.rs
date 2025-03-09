@@ -4,8 +4,10 @@ use std::path::{Path, PathBuf};
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct ArticleConfig {
-    pub name: String,
+    /// The url of the article
     pub url: String,
+    /// The name of the article
+    pub name: String,
     /// The input name of the article
     pub input: PathBuf,
     /// The output name of the article

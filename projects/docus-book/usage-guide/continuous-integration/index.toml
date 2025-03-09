@@ -1,8 +1,8 @@
 [[articles]]
-title = "Github"
+name = "Github"
 path = "github.md"
 
 [[articles]]
-title = "Netlify"
+name = "Netlify"
 path = "netlify.md"
 
