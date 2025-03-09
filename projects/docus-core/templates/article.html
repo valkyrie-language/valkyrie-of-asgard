@@ -2,8 +2,28 @@
 
 {% block title %}{% endblock %}
 
+{% block sidebar %}
+<nav class="sidebar">
+    <div class="sidebar-inner">
+        {% for menu in book.sidebar.menu %}
+        <a href="{{ menu.url }}.html" class="sidebar-item {% if menu.collapsed %}sidebar-item--active{% endif %}">
+            {{ menu.title }}
+            {% if !menu.children.is_empty() %}
+            <div class="sidebar-submenu">
+                {% for sub in menu.children %}
+                <a href="{{ sub.url }}.html" class="sidebar-submenu-item">{{ sub.title }}</a>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </a>
+        {% endfor %}
+    </div>
+</nav>
+{% endblock %}
+
 
 
 {% block content %}
 {{ self.generate_html()|safe }}
 {% endblock %}
+

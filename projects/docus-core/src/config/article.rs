@@ -20,7 +20,7 @@ impl ArticleConfig {
     pub fn load(input: &Path, output: &Path) -> Result<Self, DocusError> {
         let mut result = Self::default();
         let config = input.with_extension("toml");
-        let file_name = input.file_name().unwrap().to_str().unwrap();
+        let file_name = input.file_stem().unwrap().to_str().unwrap();
         if config.exists() {
             let file = toml::from_str::<ArticleFile>(&std::fs::read_to_string(input).unwrap())?;
             result.url = file.url.unwrap_or(file_name.to_string());

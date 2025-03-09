@@ -6,7 +6,7 @@ use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct ChapterConfig {
     /// The title of the chapter
     pub title: String,
@@ -29,23 +29,18 @@ struct ChapterFile {
     title: Option<String>,
     url: Option<String>,
     /// The order of articles in the chapter
-    articles: Option<Vec<String>>,
+    articles: Option<Vec<ArticleItem>>,
     collapsible: Option<bool>,
     collapsed: Option<bool>,
 }
-
-impl Default for ChapterConfig {
-    fn default() -> Self {
-        Self {
-            title: "".to_string(),
-            url: "".to_string(),
-            articles: IndexMap::default(),
-            collapsible: false,
-            collapsed: false,
-            input: Default::default(),
-            output: Default::default(),
-        }
-    }
+#[derive(Debug, Deserialize)]
+pub struct ArticleItem {
+    /// Article name show on the sidebar
+    name: Option<String>,
+    /// Article local path of the book
+    path: String,
+    /// Article url of the book
+    url: Option<String>,
 }
 
 impl ChapterConfig {
@@ -75,9 +70,9 @@ impl ChapterConfig {
         Ok(result)
     }
 
-    fn find_by_ids(&mut self, order: &[String]) -> Result<(), DocusError> {
+    fn find_by_ids(&mut self, order: &[ArticleItem]) -> Result<(), DocusError> {
         for article in order {
-            let article_path = self.input.join(article);
+            let article_path = self.input.join(&article.path);
             let article_cfg = ArticleConfig::load(&article_path, &self.output)?;
             self.articles.insert(article_cfg.url.clone(), article_cfg);
         }
@@ -90,9 +85,6 @@ impl ChapterConfig {
             // all markdown files are articles
             if let Ok(file) = file {
                 let file_name = file.file_name();
-                if file_name.to_string_lossy().eq("index.md") {
-                    continue;
-                }
                 if file_name.to_string_lossy().ends_with(".md") {
                     let book_cfg = ArticleConfig::load(&file.path(), &self.output)?;
                     self.articles.insert(file_name.to_string_lossy().to_string(), book_cfg);

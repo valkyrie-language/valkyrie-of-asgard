@@ -1,0 +1,11 @@
+[[items]]
+name = "使用指南"
+path = "index"
+
+[[items]]
+name = "安装"
+path = "install"
+
+[[items]]
+name = "持续集成"
+path = "continuous-integration"
