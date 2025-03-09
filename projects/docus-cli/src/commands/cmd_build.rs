@@ -19,6 +19,7 @@ impl BuildCommand {
     pub async fn run(&self) -> Result<(), DocusError> {
         let input = Path::new(&self.input);
         let output_path = input.join(&self.output);
+        let cache_path = find_or_create_cache_dir(&self.cache)?;
         if !input.join("docus.toml").exists() {
             let fullpath = input.canonicalize()?;
             return Err(DocusError::IoError {
@@ -26,7 +27,6 @@ impl BuildCommand {
                 message: "`docus.toml` not found".to_string(),
             });
         }
-        let cache_path = find_or_create_cache_dir(&self.cache)?;
         create_dir_all(&cache_path)?;
         create_dir_all(&output_path)?;
         build_site(input, &output_path, &cache_path)?;

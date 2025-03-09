@@ -1,6 +1,6 @@
 pub use self::article::ArticleTemplate;
 use crate::{
-    config::{ArticleConfig, RenderConfig},
+    config::{ArticleConfig, DocusConfig},
     helpers::find_all_books,
     DocusError,
 };
@@ -15,7 +15,7 @@ pub fn build_site(input: &Path, output: &Path, cache: &Path) -> Result<(), Docus
     tracing::debug!("\n    Output: {}", output.display());
     tracing::debug!("\n    Cache: {}", cache.display());
 
-    let mut config = RenderConfig::load(input)?;
+    let mut config = DocusConfig::load(input)?;
     config.cache_path = cache.to_path_buf();
     // generate css
     config.style.generate_css(output, cache)?;
@@ -31,7 +31,7 @@ pub fn build_site(input: &Path, output: &Path, cache: &Path) -> Result<(), Docus
     Ok(())
 }
 
-pub fn build_book(input: &Path, output: &Path, cache: &Path, config: RenderConfig) -> Result<(), DocusError> {
+pub fn build_book(input: &Path, output: &Path, cache: &Path, config: DocusConfig) -> Result<(), DocusError> {
     println!("输出1: {}", output.display());
     let chapters = find_all_chapters(input, &config)?;
     for chapter in chapters {
@@ -44,7 +44,7 @@ pub fn build_book(input: &Path, output: &Path, cache: &Path, config: RenderConfi
 
     Ok(())
 }
-pub fn build_chapter(input: &Path, output: &Path, cache: &Path, mut config: RenderConfig) -> Result<(), DocusError> {
+pub fn build_chapter(input: &Path, output: &Path, cache: &Path, mut config: DocusConfig) -> Result<(), DocusError> {
     println!("输出2: {}", output.display());
     create_dir_all(output)?;
     for (path, article) in config.chapter.articles.iter() {

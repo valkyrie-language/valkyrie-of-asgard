@@ -1,5 +1,5 @@
 use crate::{
-    config::{ChapterConfig, DocusConfig, InternationalizationConfig, RenderConfig},
+    config::{ChapterConfig, DocusConfig, DocusFile, InternationalizationConfig},
     DocusError,
 };
 use indexmap::IndexMap;
@@ -11,6 +11,10 @@ pub struct BookConfig {
     pub name: String,
     pub url: String,
     pub chapters: IndexMap<String, ChapterConfig>,
+    /// The input folder of the book
+    pub input: PathBuf,
+    /// The output folder of the book
+    pub output: PathBuf,
 }
 
 #[derive(Clone, Debug, Deserialize)]
@@ -75,4 +79,3 @@ impl BookConfig {
         Ok(())
     }
 }
-

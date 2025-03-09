@@ -9,6 +9,7 @@ use crate::config::InternationalizationConfig;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ChapterConfig {
+    
     /// The title of the chapter
     pub title: String,
     /// The url of the chapter
@@ -19,6 +20,10 @@ pub struct ChapterConfig {
     pub collapsible: bool,
     /// Whether the chapter is collapsed in default
     pub collapsed: bool,
+    /// The input folder of the book
+    pub input: PathBuf,
+    /// The output folder of the book
+    pub output: PathBuf,
 }
 
 #[derive(Debug, Deserialize)]
